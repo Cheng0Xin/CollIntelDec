@@ -1,14 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from arena import *
+from arena import Arena
+from decision import CDCIDecision
 import matplotlib.pyplot as plt
 
 
-if __name__ == "__main__":
-    a = Arena(None)
+def run_random_work_and_plot(arena: Arena):
+    arena.random_walk()
     for idx in range(300000):
-        a.random_walk()
+        arena.random_walk()
         if idx % 5 == 0:
-            a.plot(plt)
+            arena.plot(plt)
         print(f"No. {idx}")
+
+
+if __name__ == "__main__":
+    a = Arena()
+    run_random_work_and_plot(a)
+    b = CDCIDecision(a)
+    b.get_neighbours(2)
 
