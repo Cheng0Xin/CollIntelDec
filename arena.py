@@ -72,9 +72,9 @@ class Arena(object):
         result.extend([x for x, _ in zip(*above_right)])
 
         below_left = np.where(self.robots_locations < self.body_size)
-        print(f"Debug (loc): {self.robots_locations}")
-        print(f"Debug (edge): {self.robots_locations < self.body_size}")
-        print(f"Debug (nodes): {below_left}")
+        # print(f"Debug (loc): {self.robots_locations}")
+        # print(f"Debug (edge): {self.robots_locations < self.body_size}")
+        # print(f"Debug (nodes): {below_left}")
         result.extend([x for x, _ in zip(*below_left)])
 
         if len(result) != 0:
@@ -92,7 +92,7 @@ class Arena(object):
 
     def random_walk(self):
         locations = self.robots_locations.copy()
-        print(f"Random start: {self.robots_locations}")
+        # print(f"Random start: {self.robots_locations}")
         for idx, robot in enumerate(self.robots):
             robot.random_orientation()
             self.robots_locations[idx] = robot.next_step(locations[idx])
@@ -104,8 +104,8 @@ class Arena(object):
                 self.robots[robot_idx].random_orientation()
                 self.robots_locations[robot_idx] = self.robots[robot_idx].next_step(locations[robot_idx])
             coll_s = self.collision_detection()
-            print(f"Coll_s: {self.robots_locations}")
-        print(f"Random end: {self.robots_locations}")
+            # print(f"Coll_s: {self.robots_locations}")
+        # print(f"Random end: {self.robots_locations}")
 
     def plot(self, plt):
         # re-draw arena

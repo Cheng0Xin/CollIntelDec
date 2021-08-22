@@ -9,9 +9,15 @@ from robot import Robot
 class CDCIDecision(object):
     def __init__(self, arena: Arena):
         self.area = arena
+        self.result = np.zeros(self.area.num_of_agents)
 
     def make_decision(self):
-        pass
+        locations = self.area.robots_locations
+# self.area.environment[loc[0]][loc[1]]
+        robot_tmp_result = [self.area.environment[int(loc[0])][int(loc[1])] 
+                  for loc in locations]
+        self.result += robot_tmp_result
+        print(f"Debug: {self.result}")
 
     def get_neighbours(self, robot_idx: int):
         neighbours = [y for x, y in

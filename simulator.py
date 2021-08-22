@@ -5,18 +5,19 @@ from decision import CDCIDecision
 import matplotlib.pyplot as plt
 
 
-def run_random_work_and_plot(arena: Arena):
-    arena.random_walk()
+def run_random_work_and_plot(decision: CDCIDecision):
+    decision.area.random_walk()
     for idx in range(300000):
-        arena.random_walk()
+        decision.area.random_walk()
+
         if idx % 5 == 0:
-            arena.plot(plt)
-        print(f"No. {idx}")
+            # decision.area.plot(plt)
+            decision.make_decision()
+        # print(f"No. {idx}")
 
 
 if __name__ == "__main__":
-    a = Arena()
-    run_random_work_and_plot(a)
-    b = CDCIDecision(a)
-    b.get_neighbours(2)
+    arena = Arena()
+    decision = CDCIDecision(arena)
+    run_random_work_and_plot(decision)
 
