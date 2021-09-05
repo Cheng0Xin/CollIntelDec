@@ -38,12 +38,6 @@ class Robot(object):
     def renew_timer(self):
         self.timer = np.random.exponential() * self.timer_scale
 
-    def gen_opinion(self):
-        if self.commit and self.state:
-            self.opinion = 0
-        if self.commit and not self.state:
-            pass
-
     def random_orientation(self):
         self.direction = np.random.rand() * 2 * np.pi
         self.direction_vector = np.array(

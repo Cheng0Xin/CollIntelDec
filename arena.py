@@ -5,7 +5,7 @@ from robot import Robot
 
 
 class Arena(object):
-    def __init__(self, foot_step=1.16,
+    def __init__(self, decision_agent=None, foot_step=1.16,
                  body_size=1, num_of_agents=10,
                  pattern='random', ratio=0.75,
                  width=20, length=20,
@@ -18,6 +18,7 @@ class Arena(object):
         self.ratio = ratio
         self.width = width
         self.length = length
+        self.decision_agent = decision_agent
 
         # the plant field
         self.environment = None
@@ -111,7 +112,7 @@ class Arena(object):
             # print(f"Coll_s: {self.robots_locations}")
 
         distances = self.robots_distances()
-        print(distances)
+        # print(distances)
 
         for robot in self.robots:
             robot.timer -= 1
@@ -121,17 +122,17 @@ class Arena(object):
 
         for robot_idx, robot in enumerate(self.robots):
             if robot.comm_state == Robot.EXPLOIT:
-                pass
+                self.decision_agent.gen_opinion(
+                    robot, self.robots_locations[idx])
+                print(robot.opn)
             if robot.comm_state == Robot.NOT_EXPLOIT:
                 neibour_idx_list = [idx for idx, dis
                                     in enumerate(distances[robot_idx])
                                     if dis < robot.communication_distance and
                                     idx != robot_idx]
                 for dst_idx in neibour_idx_list:
-                    self.exchange_opinion(robot_idx, dst_idx)
-
-    def exchange_opinion(self, src, dst):
-        print(f"{src}, {dst} exchange idea")
+                    self.decision_agent.exchange_opinion(self.robots,
+                                                         robot_idx, dst_idx)
 
     def plot(self, plt):
         # re-draw arena
