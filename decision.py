@@ -13,4 +13,20 @@ class CDCIDecision(object):
         robot.opn = robot.opn / np.sum(robot.opn)
 
     def exchange_opinion(self, robot: list[Robot], robot_idx_i, robot_idx_j):
-        print(f"{robot_idx_i}, {robot_idx_j} exchange")
+        r1 = robot[robot_idx_i]
+        r2 = robot[robot_idx_j]
+
+        if r1.comm_state != Robot.COMMIT:
+            return
+
+        if r2.comm_state == Robot.COMMIT:
+            # print("COMM STATE")
+            if r1.op == r2.op:
+                pass
+            else:
+                r1.comm_state = Robot.NOT_COMMIT
+                r2.comm_state = Robot.NOT_COMMIT
+                r1.op = -1
+                r2.op = -1
+        else:
+            r2.op = r1.op

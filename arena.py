@@ -1,7 +1,8 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import numpy as np
 from robot import Robot
+import matplotlib.pyplot as plt
+import collections
 
 
 class Arena(object):
@@ -95,7 +96,7 @@ class Arena(object):
                 distance_mat[i][j] = np.sqrt(np.sum(np.power(x - y, 2)))
         return distance_mat
 
-    def random_walk(self):
+    def random_walk(self, step: int):
         locations = self.robots_locations.copy()
         # print(f"Random start: {self.robots_locations}")
         for idx, robot in enumerate(self.robots):
@@ -116,16 +117,29 @@ class Arena(object):
 
         for robot in self.robots:
             robot.timer -= 1
+            if step % 20 == 0:
+                robot.think()
+            if robot.comm_state == Robot.NOT_COMMIT and \
+               np.random.rand() < robot.comm_prob():
+                robot.comm_state = Robot.COMMIT
+            # print(f"COMM Prob: {robot.comm_prob()}, {robot.comm_state}")
+
             if robot.timer <= 0:
-                robot.comm_state = not robot.comm_state
+                robot.exploit_state = not robot.exploit_state
                 robot.renew_timer()
+                print(f"Timer: {robot.timer}")
 
         for robot_idx, robot in enumerate(self.robots):
-            if robot.comm_state == Robot.EXPLOIT:
-                self.decision_agent.gen_opinion(
-                    robot, self.robots_locations[idx])
-                print(robot.opn)
-            if robot.comm_state == Robot.NOT_EXPLOIT:
+            if robot.exploit_state == Robot.EXPLOIT:
+                (loc_x, loc_y) = self.robots_locations[idx]
+
+                if self.environment[int(loc_x)][int(loc_y)]:
+                    loc = [1, 0]
+                else:
+                    loc = [0, 1]
+                self.decision_agent.gen_opinion(robot, loc)
+                # print(f"OP: {robot.v0}, {robot.op}")
+            if robot.exploit_state == Robot.NOT_EXPLOIT:
                 neibour_idx_list = [idx for idx, dis
                                     in enumerate(distances[robot_idx])
                                     if dis < robot.communication_distance and
@@ -133,17 +147,40 @@ class Arena(object):
                 for dst_idx in neibour_idx_list:
                     self.decision_agent.exchange_opinion(self.robots,
                                                          robot_idx, dst_idx)
+        for robot in self.robots:
+            if robot.comm_state == Robot.COMMIT and \
+               np.random.rand() < robot.abandon_prob():
+                robot.comm_state = Robot.NOT_COMMIT
+                robot.op = -1
 
-    def plot(self, plt):
+    def get_dominate(self):
+        robot_ops = [robot.op for robot in self.robots]
+        res = collections.Counter(robot_ops)
+        m_value = 0
+        m_idx = -1
+        for k, v in res.items():
+            if m_value < v:
+                m_value = v
+                m_idx = k
+        print(m_idx)
+
+    def plot(self, fig, axis):
         # re-draw arena
-        plt.cla()
+        axis[0, 0].cla()
+        axis[0, 1].cla()
+        axis[1, 0].cla()
 
+        # Robot walking
         for idx, row in enumerate(self.environment):
             for idy, v in enumerate(row):
                 if v == 1:
-                    plt.fill_between([idx, idx + 1], idy, idy + 1, fc='k')
+                    axis[0, 0].fill_between([idx, idx + 1],
+                                            idy, idy + 1, fc='black')
         for idx, (x, y) in enumerate(self.robots_locations):
-            plt.scatter(x, y, marker="*")
+            axis[0, 0].scatter(x, y, marker="*")
 
+        # Opinion
+        robot_ops = [robot.op for robot in self.robots]
+        axis[0, 1].plot(robot_ops, 'r+')
         plt.draw()
-        plt.pause(0.01)
+        plt.pause(0.5)

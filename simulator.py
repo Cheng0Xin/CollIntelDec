@@ -3,12 +3,16 @@
 from arena import Arena
 from decision import CDCIDecision
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 
 def run_random_work_and_plot(arena: Arena):
+    fig, axis = plt.subplots(2, 2)
+    fig.show()
     for idx in range(300000):
-        arena.random_walk()
+        arena.random_walk(idx)
+        arena.plot(fig, axis)
+        arena.get_dominate()
 
 
 def get_hypo():
