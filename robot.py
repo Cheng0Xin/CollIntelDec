@@ -19,8 +19,9 @@ class Robot(object):
             body_size=1,
             timer_scale=5,
             communication_distance=5,
-            h=8,
-            k=20
+            h=0.4,
+            k=0.4,
+            comm_prob=0.9  # 0.01 0.02, 0.05, 0.1
     ):
         # constance
         self.foot_step = foot_step
@@ -29,6 +30,7 @@ class Robot(object):
         self.timer_scale = timer_scale
         self.h = h
         self.k = k
+        self.comm_prob = comm_prob
         self.delta = 50 * 31 * 0.000594
 
         # movement
@@ -52,14 +54,17 @@ class Robot(object):
             [np.cos(self.direction), np.sin(self.direction)]
         )
 
-    def comm_prob(self):
-        return self.k * self.v0
-
     def abandon_prob(self):
-        return self.k * (1 - self.v0)
+        return self.k * (1 - self.get_v0())
 
     def interaction_prob(self):
-        return self.h * self.v0
+        return self.h * self.get_v0()
+
+    def get_v0(self):
+        if self.comm_state == Robot.COMMIT:
+            return self.opn[self.op]
+        else:
+            return self.v0
 
     def think(self):
         rg = [sum(self.opn[: idx]) for idx in range(1, len(self.opn))]
@@ -68,6 +73,7 @@ class Robot(object):
         count = np.count_nonzero(rg < np.random.rand())
         self.op = len(self.opn) - 1 - count
         self.v0 = self.opn[self.op]
+        self.comm_state = Robot.COMMIT
 
     def __str__(self):
         return f"Direction: ({self.direction_vector[0]}, {self.direction_vector[1]})"

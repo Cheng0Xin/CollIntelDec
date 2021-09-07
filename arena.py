@@ -117,17 +117,17 @@ class Arena(object):
 
         for robot in self.robots:
             robot.timer -= 1
-            if step % 20 == 0:
-                robot.think()
+
             if robot.comm_state == Robot.NOT_COMMIT and \
-               np.random.rand() < robot.comm_prob():
-                robot.comm_state = Robot.COMMIT
-            # print(f"COMM Prob: {robot.comm_prob()}, {robot.comm_state}")
+               np.random.rand() < robot.comm_prob:
+                robot.think()
+                print(f"COMM Prob: {robot.v0}, {robot.op}")
+                # print(f"COMM Prob: {robot.comm_prob()}, {robot.comm_state}")
 
             if robot.timer <= 0:
                 robot.exploit_state = not robot.exploit_state
                 robot.renew_timer()
-                print(f"Timer: {robot.timer}")
+                # print(f"Timer: {robot.timer}")
 
         for robot_idx, robot in enumerate(self.robots):
             if robot.exploit_state == Robot.EXPLOIT:
@@ -137,8 +137,9 @@ class Arena(object):
                     loc = [1, 0]
                 else:
                     loc = [0, 1]
+                # update opn
                 self.decision_agent.gen_opinion(robot, loc)
-                # print(f"OP: {robot.v0}, {robot.op}")
+            # print(f"Test: {robot.opn}, {robot.op}")
             if robot.exploit_state == Robot.NOT_EXPLOIT:
                 neibour_idx_list = [idx for idx, dis
                                     in enumerate(distances[robot_idx])
@@ -162,25 +163,31 @@ class Arena(object):
             if m_value < v:
                 m_value = v
                 m_idx = k
-        print(m_idx)
+        return m_idx, m_value
 
     def plot(self, fig, axis):
         # re-draw arena
-        axis[0, 0].cla()
-        axis[0, 1].cla()
-        axis[1, 0].cla()
+        axis_0 = axis[0]
+        axis_1 = axis[1]
+        axis_0.cla()
+        axis_1.cla()
 
         # Robot walking
         for idx, row in enumerate(self.environment):
             for idy, v in enumerate(row):
                 if v == 1:
-                    axis[0, 0].fill_between([idx, idx + 1],
-                                            idy, idy + 1, fc='black')
+                    axis_0.fill_between(
+                        [idx, idx + 1], idy, idy + 1, fc='black')
         for idx, (x, y) in enumerate(self.robots_locations):
-            axis[0, 0].scatter(x, y, marker="*")
+            axis_0.scatter(x, y, marker="*")
 
         # Opinion
         robot_ops = [robot.op for robot in self.robots]
-        axis[0, 1].plot(robot_ops, 'r+')
+        robot_ab = [robot.abandon_prob() for robot in self.robots]
+        robot_inte = [robot.interaction_prob() for robot in self.robots]
+        print(f"Ops: {robot_ops}")
+        print(f"Ab: {robot_ab}")
+        print(f"Ab: {robot_inte}")
+        axis_1.plot(robot_ops, 'r+')
         plt.draw()
         plt.pause(0.5)

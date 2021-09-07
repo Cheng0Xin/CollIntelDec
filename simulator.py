@@ -7,12 +7,16 @@ import matplotlib.pyplot as plt
 
 
 def run_random_work_and_plot(arena: Arena):
-    fig, axis = plt.subplots(2, 2)
+    fig, axis = plt.subplots(1, 2, figsize=(15, 7))
     fig.show()
     for idx in range(300000):
         arena.random_walk(idx)
-        arena.plot(fig, axis)
-        arena.get_dominate()
+        if idx % 20 == 0:
+            arena.plot(fig, axis)
+        res_idx, res_value = arena.get_dominate()
+        if res_value >= 9 and res_idx != -1:
+            print(f"Result: {res_idx}, After time: {idx}")
+            break
 
 
 def get_hypo():

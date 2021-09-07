@@ -16,7 +16,13 @@ class CDCIDecision(object):
         r1 = robot[robot_idx_i]
         r2 = robot[robot_idx_j]
 
+        if np.random.rand() < r1.interaction_prob():
+            return
+
         if r1.comm_state != Robot.COMMIT:
+            if r2.comm_state == Robot.COMMIT:
+                r1.op = r2.op
+                r1.comm_state = Robot.COMMIT
             return
 
         if r2.comm_state == Robot.COMMIT:
@@ -30,3 +36,4 @@ class CDCIDecision(object):
                 r2.op = -1
         else:
             r2.op = r1.op
+            r2.comm_state = Robot.COMMIT
